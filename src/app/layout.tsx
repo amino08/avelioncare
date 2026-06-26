@@ -1,5 +1,6 @@
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { createMetadata, organizationJsonLd } from "@/lib/metadata";
@@ -50,28 +51,36 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html
       lang="en"
       className={`${cormorant.variable} ${dmSans.variable} h-full`}
     >
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
-          }}
-        />
+        {!isAdmin && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(organizationJsonLd),
+            }}
+          />
+        )}
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {!isAdmin && <Navbar />}
+        <main className={isAdmin ? "flex-1 bg-platinum-soft" : "flex-1"}>
+          {children}
+        </main>
+        {!isAdmin && <Footer />}
       </body>
     </html>
   );

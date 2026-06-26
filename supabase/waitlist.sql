@@ -10,6 +10,12 @@ create table if not exists public.waitlist_submissions (
   submitted_at timestamptz not null default now()
 );
 
+create index if not exists waitlist_submissions_submitted_at_idx
+  on public.waitlist_submissions (submitted_at desc);
+
+create index if not exists waitlist_submissions_interest_idx
+  on public.waitlist_submissions (interest);
+
 alter table public.waitlist_submissions enable row level security;
 
--- No public policies: only the service role (API route) can read/write.
+-- No public policies: only the service role (API routes) can read/write.
